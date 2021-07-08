@@ -1,4 +1,5 @@
-﻿@page "/admin/categories"
+﻿@attribute [Authorize]
+@page "/admin/categories"
 @using BlogServerSide.Components
 @inject IMyBlogApi api
 <h3>Categories</h3>

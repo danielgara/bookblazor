@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 
 namespace BlogWebAssembly.Client
 {
@@ -17,7 +18,11 @@ namespace BlogWebAssembly.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddHttpClient("Authenticated", client => client.BaseAddress = new Uri(builder.HostEnvironment.
+                BaseAddress)).AddHttpMessageHandler < BaseAddressAuthorizationMessageHandler > ();
+            builder.Services.AddHttpClient("Public", client => client.BaseAddress = new Uri(builder.HostEnvironment.
+                BaseAddress));
+            builder.Services.AddApiAuthorization();
 
             await builder.Build().RunAsync();
         }

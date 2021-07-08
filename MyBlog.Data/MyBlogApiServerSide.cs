@@ -17,9 +17,7 @@ namespace MyBlog.Data
         public async Task<BlogPost> GetBlogPostAsync(int id)
         {
             using var context = factory.CreateDbContext();
-            return await context.BlogPosts.Include
-            (p => p.Category).Include(p => p.Tags).
-            FirstOrDefaultAsync(p => p.Id == id);
+            return await context.BlogPosts.Include(p => p.Category).Include(p => p.Tags).FirstOrDefaultAsync(p => p.Id == id);
         }
         public async Task<int> GetBlogPostCountAsync()
         {
@@ -29,9 +27,7 @@ namespace MyBlog.Data
         public async Task<List<BlogPost>> GetBlogPostsAsync(int numberofposts, int startindex)
         {
             using var context = factory.CreateDbContext();
-            return await context.BlogPosts.OrderByDescending
-            (p => p.PublishDate).Skip(startindex).Take
-            (numberofposts).ToListAsync();
+            return await context.BlogPosts.OrderByDescending(p => p.PublishDate).Skip(startindex).Take(numberofposts).ToListAsync();
         }
         public async Task<List<Category>> GetCategoriesAsync()
         {
@@ -41,14 +37,12 @@ namespace MyBlog.Data
         public async Task<Category> GetCategoryAsync(int id)
         {
             using var context = factory.CreateDbContext();
-            return await context.Categories.Include(p =>
-            p.BlogPosts).FirstOrDefaultAsync(c => c.Id == id);
+            return await context.Categories.Include(p => p.BlogPosts).FirstOrDefaultAsync(c => c.Id == id);
         }
         public async Task<Tag> GetTagAsync(int id)
         {
             using var context = factory.CreateDbContext();
-            return await context.Tags.Include(p =>
-            p.BlogPosts).FirstOrDefaultAsync(c => c.Id == id);
+            return await context.Tags.Include(p => p.BlogPosts).FirstOrDefaultAsync(c => c.Id == id);
         }
         public async Task<List<Tag>> GetTagsAsync()
         {
@@ -86,25 +80,18 @@ namespace MyBlog.Data
                 {
                     var post = item as BlogPost;
                     var currentpost = await
-                    context.BlogPosts.Include
-                    (p => p.Category).Include(p =>
-                    p.Tags).FirstOrDefaultAsync
-                    (p => p.Id == post.Id);
+                    context.BlogPosts.Include(p => p.Category).Include(p => p.Tags).FirstOrDefaultAsync(p => p.Id == post.Id);
                     currentpost.PublishDate = post.PublishDate;
                     currentpost.Title = post.Title;
                     currentpost.Text = post.Text;
                     var ids = post.Tags.Select(t => t.Id);
-                    currentpost.Tags = context.Tags.Where(t =>
-                    ids.Contains(t.Id)).ToList();
-                    currentpost.Category = await
-                    context.Categories.FirstOrDefaultAsync
-                    (c => c.Id == post.Category.Id);
+                    currentpost.Tags = context.Tags.Where(t => ids.Contains(t.Id)).ToList();
+                    currentpost.Category = await context.Categories.FirstOrDefaultAsync(c => c.Id == post.Category.Id);
                     await context.SaveChangesAsync();
                 }
                 else
                 {
-                    context.Entry(item).State =
-                    EntityState.Modified;
+                    context.Entry(item).State = EntityState.Modified;
                 }
             }
             await context.SaveChangesAsync();

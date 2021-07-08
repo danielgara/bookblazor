@@ -13,6 +13,9 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using MyBlog.Data;
 using MyBlog.Data.Interfaces;
+using MyBlog.Data.Models;
+using Microsoft.AspNetCore.Components.Authorization;
+using BlogServerSide.Authentication;
 
 namespace BlogServerSide
 {
@@ -34,6 +37,9 @@ namespace BlogServerSide
             services.AddSingleton<WeatherForecastService>();
             services.AddDbContextFactory<MyBlogDbContext>(opt => opt.UseSqlite($"Data Source=../MyBlog.db"));
             services.AddScoped<IMyBlogApi, MyBlogApiServerSide>();
+            services.AddDbContext<MyBlogDbContext>(opt => opt.UseSqlite(Configuration.GetConnectionString("MyBlogDB")));
+            services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<MyBlogDbContext>();
+            services.AddScoped<AuthenticationStateProvider,RevalidatingIdentityAuthenticationStateProvider<AppUser>>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -55,6 +61,8 @@ namespace BlogServerSide
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

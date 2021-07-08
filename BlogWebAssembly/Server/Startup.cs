@@ -6,6 +6,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System.Linq;
+using MyBlog.Data;
+using MyBlog.Data.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using MyBlog.Data.Models;
+using Microsoft.AspNetCore.Authentication;
 
 namespace BlogWebAssembly.Server
 {
@@ -22,9 +27,15 @@ namespace BlogWebAssembly.Server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-
+            services.AddDbContextFactory<MyBlogDbContext>(opt => opt.UseSqlite($"Data Source=../../MyBlog.db"));
+            services.AddScoped<IMyBlogApi, MyBlogApiServerSide>();
             services.AddControllersWithViews();
             services.AddRazorPages();
+            services.AddDbContext<MyBlogDbContext>(opt => opt.UseSqlite(Configuration.GetConnectionString("MyBlogDB")));
+            services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = false)
+                .AddEntityFrameworkStores<MyBlogDbContext>();
+            services.AddIdentityServer().AddApiAuthorization<AppUser, MyBlogDbContext>();
+            services.AddAuthentication().AddIdentityServerJwt();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -47,6 +58,9 @@ namespace BlogWebAssembly.Server
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseIdentityServer();
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

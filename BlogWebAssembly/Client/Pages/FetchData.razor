@@ -1,6 +1,8 @@
 ﻿@page "/fetchdata"
+@inject IHttpClientFactory factory
 @using BlogWebAssembly.Shared
 @inject HttpClient Http
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 
 <h1>Weather forecast</h1>
 
@@ -40,7 +42,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+        try
+        {
+            var httpclient = factory.CreateClient("Authenticated");
+            forecasts = await httpclient.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
     }
 
 }

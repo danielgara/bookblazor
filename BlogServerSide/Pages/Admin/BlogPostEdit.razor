@@ -1,4 +1,5 @@
-﻿@page "/admin/blogposts/new"
+﻿@attribute [Authorize]
+@page "/admin/blogposts/new"
 @page "/admin/blogposts/{Id:int}"
 @inject IMyBlogApi api
 @inject NavigationManager manager
